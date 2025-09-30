@@ -1,0 +1,51 @@
+<div id="inquiry-form">
+    <form method="post"
+          action="{% url 'listings:inquire' listing.slug %}"
+          hx-post="{% url 'listings:inquire' listing.slug %}"
+          hx-target="#inquiry-form"
+          hx-swap="outerHTML">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+            <article class="error" style="margin-bottom: 0.75rem;">
+                {{ form.non_field_errors|join:", " }}
+            </article>
+        {% endif %}
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+            <label>
+                <span>Name *</span>
+                {{ form.name }}
+                {{ form.name.errors }}
+            </label>
+            <label>
+                <span>Email *</span>
+                {{ form.email }}
+                {{ form.email.errors }}
+            </label>
+            <label>
+                <span>Phone</span>
+                {{ form.phone_number }}
+                {{ form.phone_number.errors }}
+            </label>
+        </div>
+        <label>
+            <span>Message *</span>
+            {{ form.message }}
+            {{ form.message.errors }}
+        </label>
+        {% if captcha_provider and captcha_provider != 'none' %}
+        <div class="captcha-block" style="margin-top: 1rem;">
+            {% if captcha_provider == 'turnstile' %}
+                <div class="cf-turnstile" data-sitekey="{{ captcha_site_key }}"></div>
+                <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+            {% elif captcha_provider == 'hcaptcha' %}
+                <div class="h-captcha" data-sitekey="{{ captcha_site_key }}"></div>
+                <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+            {% endif %}
+        </div>
+        {% endif %}
+        <input type="hidden" name="captcha_token" value="">
+        <footer style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+            <button type="submit" class="contrast">Send inquiry</button>
+        </footer>
+    </form>
+</div>

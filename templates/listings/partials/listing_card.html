@@ -1,0 +1,31 @@
+{% load humanize %}
+<article class="listing-card" style="border: 1px solid var(--muted-border-color); border-radius: 0.75rem; overflow: hidden; display: flex; flex-direction: column;">
+    <a href="{% url 'listings:detail' listing.slug %}" style="display: block; position: relative; padding-top: 62.5%; background: var(--muted-border-color);">
+        {% if listing.primary_photo %}
+            {% with photo=listing.primary_photo %}
+                {% with thumb_url=photo.thumbnail_url %}
+                    {% with display_url=photo.display_url|default:photo.image_url %}
+                        <img src="{{ thumb_url|default:display_url }}" {% if display_url and thumb_url and thumb_url != display_url %}srcset="{{ thumb_url }} 320w, {{ display_url }} 640w" sizes="(max-width: 600px) 320px, 640px"{% endif %} alt="{{ photo.alt_text|default:listing.title|default:'EV listing photo' }}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;" loading="lazy" />
+                    {% endwith %}
+                {% endwith %}
+            {% endwith %}
+        {% else %}
+            <span style="position: absolute; inset: 0; display: grid; place-items: center; font-size: 0.9rem; color: var(--muted-color);">Photo coming soon</span>
+        {% endif %}
+    </a>
+    <div style="padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; flex: 1;">
+        <h2 style="margin: 0; font-size: 1.15rem;"><a href="{% url 'listings:detail' listing.slug %}">{{ listing.title|default:listing.model }}</a></h2>
+        <p style="margin: 0; color: var(--muted-color);">
+            {{ listing.city }}, {{ listing.get_province_display }} - {{ listing.year }} {{ listing.make }} {{ listing.model }}
+        </p>
+        {% if listing.dealer %}
+            <p style="margin: 0; font-size: 0.9rem;">Dealer: <a href="{% url 'dealers:detail' listing.dealer.slug %}">{{ listing.dealer.name }}</a></p>
+        {% endif %}
+        <p style="margin: 0; font-weight: 600;">${{ listing.price|floatformat:0|intcomma }}</p>
+        <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.85rem; color: var(--muted-color);">
+            {% if listing.mileage_km %}<li>{{ listing.mileage_km|intcomma }} km</li>{% endif %}
+            {% if listing.range_km %}<li>{{ listing.range_km|intcomma }} km est. range</li>{% endif %}
+            {% if listing.drivetrain %}<li>{{ listing.get_drivetrain_display }}</li>{% endif %}
+        </ul>
+    </div>
+</article>

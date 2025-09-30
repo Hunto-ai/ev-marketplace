@@ -1,0 +1,50 @@
+{% extends "dashboard/base.html" %}
+
+{% block dashboard_title %}{{ view.title }}{% endblock %}
+
+{% block dashboard_content %}
+<h1>{{ view.title }}</h1>
+<form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <article>
+        {{ form.non_field_errors }}
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+            {% for field in form.visible_fields %}
+                <label>
+                    <span>{{ field.label }}{% if field.field.required %} *{% endif %}</span>
+                    {{ field }}
+                    {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
+                    {{ field.errors }}
+                </label>
+            {% endfor %}
+        </div>
+    </article>
+
+    <article>
+        <header><h2>Photos</h2></header>
+        {{ photos.management_form }}
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+            {% for form in photos.forms %}
+                <div class="photo-form">
+                    {% for field in form.visible_fields %}
+                        <label>
+                            <span>{{ field.label }}</span>
+                            {{ field }}
+                            {{ field.errors }}
+                        </label>
+                    {% endfor %}
+                    {% if form.instance.pk %}
+                        <label>{{ form.DELETE }} Remove</label>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+        <p class="muted">Add up to 10 photos. First photo becomes your cover image.</p>
+    </article>
+
+    <footer>
+        <button type="submit" class="contrast">Save listing</button>
+        <a role="button" class="secondary" href="{% url 'dashboard:index' %}">Cancel</a>
+    </footer>
+</form>
+{% endblock %}

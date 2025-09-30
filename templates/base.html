@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{% block title %}EV Marketplace{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ql0gZRXjzJSTZ6py0X58F3RDeo63HgNbUsVTNffraZx0VhV77n5qD0m+SKpCcfLk" crossorigin="anonymous"></script>
+    {% if canonical_url %}<link rel="canonical" href="{{ canonical_url }}" />{% endif %}
+    {% block head %}{% endblock %}
+    <style>
+        .flex-between { display: flex; align-items: center; justify-content: space-between; }
+        table .actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
+        .status { padding: 0.25rem 0.5rem; border-radius: 999px; background: var(--muted-border-color); display: inline-block; }
+        .status.success { background: var(--form-element-valid-border-color); color: var(--form-element-valid-focus-color); }
+        .status.warning { background: #fcefc0; color: #8a6d3b; }
+        .status.error { background: #f9d6d5; color: #8b2f2f; }
+        .status.secondary { background: #dcdcdc; color: #4b4b4b; }
+        .photo-form { border: 1px solid var(--muted-border-color); padding: 0.5rem; border-radius: 0.5rem; }
+        .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; background: var(--contrast); color: var(--contrast-inverse); font-size: 0.7rem; }
+        tr.unread { background: rgba(0, 123, 255, 0.08); }
+        .delivery-error { color: #8b2f2f; }
+    </style>
+</head>
+<body>
+    <header class="container">
+        <nav>
+            <ul>
+                <li><strong><a href="{% url 'home' %}">EV Marketplace</a></strong></li>
+                <li><a href="{% url 'listings:list' %}">Browse listings</a></li>
+                <li><a href="{% url 'dealers:list' %}">Find a dealer</a></li>
+                <li><a href="{% url 'guides:list' %}">Guides</a></li>
+                <li><a href="{% url 'sell' %}">Sell an EV</a></li>
+            </ul>
+            <ul>
+                {% if user.is_authenticated %}
+                    <li><a href="{% url 'dashboard:index' %}">Dashboard</a></li>
+                    <li><a href="{% url 'account_logout' %}">Logout</a></li>
+                {% else %}
+                    <li><a href="{% url 'account_login' %}">Login</a></li>
+                    <li><a href="{% url 'account_signup' %}">Sign up</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </header>
+
+    {% if messages %}
+        <section class="container">
+            {% for message in messages %}
+                <article class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</article>
+            {% endfor %}
+        </section>
+    {% endif %}
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block scripts %}{% endblock %}
+</body>
+</html>
+
+
+
+
+

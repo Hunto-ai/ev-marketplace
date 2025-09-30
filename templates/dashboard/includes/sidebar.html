@@ -1,0 +1,12 @@
+<nav>
+    <ul>
+        <li><strong>Seller</strong></li>
+        <li><a href="{% url 'dashboard:index' %}">Listings</a></li>
+        <li><a href="{% url 'dashboard:notifications' %}">Notifications{% if inquiry_unread_count|default:0 %} <span class="badge">{{ inquiry_unread_count }}</span>{% endif %}</a></li>
+        <li><a href="{% url 'dashboard:create' %}">Create listing</a></li>
+    </ul>
+    <ul>
+        <li><strong>Account</strong></li>
+        <li><a href="{% url 'account_logout' %}">Logout</a></li>
+    </ul>
+</nav>

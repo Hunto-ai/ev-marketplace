@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{{ listing.title|default:listing.model }} - EV Marketplace{% endblock %}
+
+{% block head %}
+    {{ block.super }}
+    {% if vehicle_schema_json %}
+    <script type="application/ld+json">{{ vehicle_schema_json|safe }}</script>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<nav aria-label="Breadcrumb" style="margin-bottom: 1rem;">
+    <small>
+        <a href="{% url 'listings:list' %}">&larr; Back to listings</a>
+    </small>
+</nav>
+
+<article class="listing-detail" style="display: grid; gap: 2rem;">
+    <header style="display: flex; flex-direction: column; gap: 0.5rem;">
+        <h1 style="margin: 0;">{{ listing.year }} {{ listing.make }} {{ listing.model }}{% if listing.trim %} {{ listing.trim }}{% endif %}</h1>
+        <p style="margin: 0; color: var(--muted-color);">{{ listing.city }}, {{ listing.get_province_display }}</p>
+        <p style="font-size: 1.75rem; font-weight: 600; margin: 0;">${{ listing.price|floatformat:0|intcomma }}</p>
+    </header>
+
+    {% if listing.photos.all %}
+        <section class="gallery" style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
+            {% for photo in listing.photos.all %}
+                <figure style="margin: 0;">
+                    {% with display_url=photo.display_url|default:photo.image_url %}
+                    <img src="{{ display_url }}" {% with thumb_url=photo.thumbnail_url %}{% if thumb_url and thumb_url != display_url %}srcset="{{ thumb_url }} 320w, {{ display_url }} 1280w" sizes="(max-width: 600px) 320px, 1280px"{% endif %}{% endwith %} alt="{{ photo.alt_text|default:listing.title|default:'Listing photo' }}" style="width: 100%; border-radius: 0.75rem; object-fit: cover;" loading="lazy" />
+                    {% endwith %}
+                    {% if photo.caption %}<figcaption style="margin-top: 0.25rem; font-size: 0.85rem; color: var(--muted-color);">{{ photo.caption }}</figcaption>{% endif %}
+                </figure>
+            {% endfor %}
+        </section>
+    {% endif %}
+
+    <section>
+        <h2>Overview</h2>
+        <p>{{ listing.description|default:"Seller has not provided a description yet."|linebreaks }}</p>
+    </section>
+
+    <section>
+        <h2>Key Details</h2>
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+            <article>
+                <h3>Vehicle</h3>
+                <ul>
+                    <li><strong>Year:</strong> {{ listing.year }}</li>
+                    <li><strong>Make:</strong> {{ listing.make }}</li>
+                    <li><strong>Model:</strong> {{ listing.model }}</li>
+                    {% if listing.trim %}<li><strong>Trim:</strong> {{ listing.trim }}</li>{% endif %}
+                    {% if listing.mileage_km %}<li><strong>Mileage:</strong> {{ listing.mileage_km|intcomma }} km</li>{% endif %}
+                    {% if listing.range_km %}<li><strong>Range:</strong> {{ listing.range_km|intcomma }} km</li>{% endif %}
+                </ul>
+            </article>
+            <article>
+                <h3>Powertrain</h3>
+                <ul>
+                    {% if listing.drivetrain %}<li><strong>Drivetrain:</strong> {{ listing.get_drivetrain_display }}</li>{% endif %}
+                    {% if listing.dc_fast_charge_type %}<li><strong>DC Fast Charge:</strong> {{ listing.get_dc_fast_charge_type_display }}</li>{% endif %}
+                    {% if listing.has_heat_pump %}<li><strong>Heat pump:</strong> Yes</li>{% endif %}
+                    {% if listing.battery_capacity_kwh %}<li><strong>Battery capacity:</strong> {{ listing.battery_capacity_kwh }} kWh</li>{% endif %}
+                </ul>
+            </article>
+            <article>
+                <h3>Location & Seller</h3>
+                <ul>
+                    <li><strong>Province:</strong> {{ listing.get_province_display }}</li>
+                    <li><strong>City:</strong> {{ listing.city }}</li>
+                    {% if listing.dealer %}
+                        <li><strong>Dealer:</strong> <a href="{% url 'dealers:detail' listing.dealer.slug %}">{{ listing.dealer.name }}</a></li>
+                    {% endif %}
+                </ul>
+            </article>
+        </div>
+    </section>
+
+    {% if listing.dealer %}
+    <section style="margin-top: 2rem;">
+        <h2>Meet {{ listing.dealer.name }}</h2>
+        <article style="border: 1px solid var(--muted-border-color); border-radius: 0.75rem; padding: 1.25rem; display: grid; gap: 0.75rem;">
+            {% if listing.dealer.summary %}<p style="margin: 0;">{{ listing.dealer.summary }}</p>{% endif %}
+            <ul style="list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem;">
+                {% if listing.dealer.website %}<li><strong>Website:</strong> <a href="{{ listing.dealer.website }}" target="_blank" rel="noopener">{{ listing.dealer.website }}</a></li>{% endif %}
+                {% if listing.dealer.phone_number %}<li><strong>Phone:</strong> {{ listing.dealer.phone_number }}</li>{% endif %}
+                {% if listing.dealer.email %}<li><strong>Email:</strong> <a href="mailto:{{ listing.dealer.email }}">{{ listing.dealer.email }}</a></li>{% endif %}
+                {% if listing.dealer.address_line1 %}<li><strong>Address:</strong> {{ listing.dealer.address_line1 }}{% if listing.dealer.address_line2 %}, {{ listing.dealer.address_line2 }}{% endif %}, {{ listing.dealer.city }}, {{ listing.dealer.province }} {{ listing.dealer.postal_code }}</li>{% endif %}
+            </ul>
+            <a class="secondary" href="{% url 'dealers:detail' listing.dealer.slug %}">View dealer profile</a>
+        </article>
+    </section>
+    {% endif %}
+
+    <section>
+        <h2>Contact Seller</h2>
+        <p class="muted">Have a question about this EV? Submit an inquiry and we will alert the seller.</p>
+        {% include "listings/partials/inquiry_form.html" with form=inquiry_form listing=listing %}
+    </section>
+</article>
+{% endblock %}

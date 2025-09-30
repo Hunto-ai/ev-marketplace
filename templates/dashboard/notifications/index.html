@@ -1,0 +1,72 @@
+{% extends "dashboard/base.html" %}
+{% load humanize %}
+
+{% block dashboard_title %}Notifications{% endblock %}
+
+{% block dashboard_content %}
+<header style="margin-bottom: 1.5rem;">
+    <h1>Inquiry Notifications</h1>
+    <p class="muted">Latest buyer inquiries across your listings. New inquiries are marked as read when you view this page.</p>
+</header>
+
+{% if inquiries %}
+<table>
+    <thead>
+        <tr>
+            <th scope="col">Listing</th>
+            <th scope="col">From</th>
+            <th scope="col">Submitted</th>
+            <th scope="col">Delivery</th>
+            <th scope="col">Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for inquiry in inquiries %}
+        <tr class="{% if inquiry.id in unread_ids %}unread{% endif %}">
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                    <strong>{{ inquiry.listing.title|default:inquiry.listing }}</strong>
+                    <small class="muted">{{ inquiry.listing.city }}, {{ inquiry.listing.get_province_display }}</small>
+                    <small><a href="{% url 'listings:detail' inquiry.listing.slug %}" target="_blank" rel="noopener">View listing</a></small>
+                </div>
+            </td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                    <span>{{ inquiry.name }}</span>
+                    <small class="muted">{{ inquiry.email }}{% if inquiry.phone_number %} · {{ inquiry.phone_number }}{% endif %}</small>
+                    <small>{{ inquiry.message|truncatechars:120 }}</small>
+                </div>
+            </td>
+            <td>
+                <span>{{ inquiry.created_at|naturaltime }}</span>
+                <small class="muted">{{ inquiry.created_at|date:"Y-m-d H:i" }}</small>
+            </td>
+            <td>
+                <span class="status {% if inquiry.delivery_status == 'sent' %}success{% elif inquiry.delivery_status == 'failed' %}error{% endif %}">
+                    {{ inquiry.get_delivery_status_display }}
+                </span>
+                {% if inquiry.delivery_reference %}
+                    <small class="muted">{{ inquiry.delivery_reference }}</small>
+                {% endif %}
+                {% if inquiry.delivery_error %}
+                    <small class="delivery-error">{{ inquiry.delivery_error }}</small>
+                {% endif %}
+            </td>
+            <td>
+                <span class="status {% if inquiry.status == 'new' %}warning{% elif inquiry.status == 'contacted' %}success{% endif %}">
+                    {{ inquiry.get_status_display }}
+                </span>
+                {% if inquiry.responded_at %}
+                    <small class="muted">Responded {{ inquiry.responded_at|naturaltime }}</small>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<article class="muted">
+    <p>No inquiries yet. Stay tuned!</p>
+</article>
+{% endif %}
+{% endblock %}

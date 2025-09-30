@@ -1,0 +1,20 @@
+<table role="grid" id="listing-table">
+    <thead>
+        <tr>
+            <th>Listing</th>
+            <th>Status</th>
+            <th>Price</th>
+            <th>Updated</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for listing in listings %}
+            {% include "dashboard/listings/partials/listing_row.html" with listing=listing %}
+        {% empty %}
+            <tr>
+                <td colspan="5">No listings yet. <a href="{% url 'dashboard:create' %}">Create your first listing</a>.</td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

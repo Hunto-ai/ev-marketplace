@@ -1,0 +1,14 @@
+<tr id="listing-{{ listing.pk }}">
+    <td>
+        <strong>{{ listing.title }}</strong><br />
+        <small>{{ listing.city }}, {{ listing.get_province_display }}</small>
+    </td>
+    <td>{% include "dashboard/listings/partials/status_badge.html" with listing=listing %}</td>
+    <td>${{ listing.price|floatformat:0 }}</td>
+    <td>{{ listing.updated_at|date:"Y-m-d H:i" }}</td>
+    <td class="actions">
+        <a href="{% url 'dashboard:edit' listing.pk %}">Edit</a>
+        <button hx-post="{% url 'dashboard:submit' listing.pk %}" hx-target="#listing-{{ listing.pk }}" hx-swap="outerHTML" hx-confirm="Submit for moderation?" class="secondary" {% if listing.status != 'draft' and listing.status != 'rejected' %}disabled{% endif %}>Submit</button>
+        <button hx-post="{% url 'dashboard:archive' listing.pk %}" hx-target="#listing-{{ listing.pk }}" hx-swap="outerHTML" hx-confirm="Archive listing?" class="secondary" {% if listing.status == 'archived' %}disabled{% endif %}>Archive</button>
+    </td>
+</tr>

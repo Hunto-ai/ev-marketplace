@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}EV Dealers - EV Marketplace{% endblock %}
+
+{% block content %}
+<header class="flex-between" style="margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;">
+    <div>
+        <h1>EV Dealer Network</h1>
+        <p class="muted">Browse partner dealers across Canada and explore their active EV inventory.</p>
+    </div>
+    <div>
+        <a class="secondary" href="{% url 'sell' %}">Interested in partnering?</a>
+    </div>
+</header>
+
+{% if dealers %}
+<section class="grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
+    {% for dealer in dealers %}
+    <article style="border: 1px solid var(--muted-border-color); border-radius: 0.75rem; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;">
+        <div>
+            <h2 style="margin: 0; font-size: 1.2rem;"><a href="{% url 'dealers:detail' dealer.slug %}">{{ dealer.name }}</a></h2>
+            <p class="muted" style="margin: 0;">{{ dealer.city }}, {{ dealer.province }}</p>
+        </div>
+        {% if dealer.summary %}<p style="margin: 0;">{{ dealer.summary }}</p>{% endif %}
+        {% if dealer.website %}
+            <p style="margin: 0;"><a href="{{ dealer.website }}" target="_blank" rel="noopener">Visit website</a></p>
+        {% endif %}
+        <a class="secondary" href="{% url 'dealers:detail' dealer.slug %}">View dealer profile</a>
+    </article>
+    {% endfor %}
+</section>
+{% else %}
+<article class="muted">
+    <p>No dealer profiles published yet. Check back soon!</p>
+</article>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{{ dealer.name }} - EV Marketplace{% endblock %}
+
+{% block content %}
+<nav aria-label="Breadcrumb" style="margin-bottom: 1rem;">
+    <a href="{% url 'home' %}">Home</a> › <a href="{% url 'dealers:list' %}">Dealers</a> › {{ dealer.name }}
+</nav>
+
+<section style="display: grid; gap: 1.5rem; margin-bottom: 2rem; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); align-items: start;">
+    <article style="display: flex; flex-direction: column; gap: 1rem;">
+        <header>
+            <h1 style="margin-bottom: 0.25rem;">{{ dealer.name }}</h1>
+            <p class="muted" style="margin: 0;">{{ dealer.city }}, {{ dealer.province }}</p>
+        </header>
+        {% if dealer.summary %}
+            <p style="margin: 0; font-size: 1.05rem;">{{ dealer.summary }}</p>
+        {% endif %}
+        {% if dealer.description %}
+            <p>{{ dealer.description }}</p>
+        {% endif %}
+        <ul style="list-style: none; padding: 0; margin: 0; display: grid; gap: 0.35rem;">
+            {% if dealer.phone_number %}<li><strong>Phone:</strong> {{ dealer.phone_number }}</li>{% endif %}
+            {% if dealer.email %}<li><strong>Email:</strong> <a href="mailto:{{ dealer.email }}">{{ dealer.email }}</a></li>{% endif %}
+            {% if dealer.website %}<li><strong>Website:</strong> <a href="{{ dealer.website }}" target="_blank" rel="noopener">{{ dealer.website }}</a></li>{% endif %}
+            {% if dealer.address_line1 %}
+                <li>
+                    <strong>Address:</strong>
+                    {{ dealer.address_line1 }}{% if dealer.address_line2 %}, {{ dealer.address_line2 }}{% endif %},
+                    {{ dealer.city }}, {{ dealer.province }} {{ dealer.postal_code }}
+                </li>
+            {% endif %}
+        </ul>
+        {% if dealer.inventory_notes %}
+            <div style="padding: 1rem; border-radius: 0.5rem; background: rgba(46, 204, 113, 0.08); border: 1px solid var(--form-element-valid-border-color);">
+                <strong>Inventory notes:</strong>
+                <p style="margin: 0.5rem 0 0 0;">{{ dealer.inventory_notes }}</p>
+            </div>
+        {% endif %}
+    </article>
+    {% if dealer.hero_image %}
+        <div style="border-radius: 0.75rem; overflow: hidden; border: 1px solid var(--muted-border-color);">
+            <img src="{{ dealer.hero_image.url }}" alt="{{ dealer.name }} showroom" style="width: 100%; height: auto; display: block;" />
+        </div>
+    {% endif %}
+</section>
+
+<section>
+    <header style="display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+        <div>
+            <h2 style="margin: 0;">Available EV inventory</h2>
+            <p class="muted" style="margin: 0;">{{ listings|length }} active {{ listings|length|pluralize:"listing,listings" }} from {{ dealer.name }}.</p>
+        </div>
+        <a class="secondary" href="{% url 'listings:list' %}?dealer={{ dealer.slug }}">Search all listings</a>
+    </header>
+
+    {% if listings %}
+        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
+            {% for listing in listings %}
+                {% include "listings/partials/listing_card.html" with listing=listing %}
+            {% endfor %}
+        </div>
+    {% else %}
+        <article class="muted">
+            <p>No active listings right now—check back soon or contact the dealer directly.</p>
+        </article>
+    {% endif %}
+</section>
+{% endblock %}

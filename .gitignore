@@ -1,0 +1,38 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.env
+.env
+.env.*
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+
+# Django
+db.sqlite3
+media/
+staticfiles/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+.DS_Store
+Thumbs.db
+
+# Docker
+*.pid
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+crash.log
+
+# Coverage / testing
+htmlcov/
+.coverage*
+.pytest_cache/

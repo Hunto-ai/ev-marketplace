@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}{% block dashboard_title %}Dashboard{% endblock %} · EV Marketplace{% endblock %}
+
+{% block content %}
+<div class="grid">
+    <aside>
+        {% include "dashboard/includes/sidebar.html" %}
+    </aside>
+    <section>
+        {% block dashboard_content %}{% endblock %}
+    </section>
+</div>
+{% endblock %}

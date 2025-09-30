@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}EV Guides - EV Marketplace{% endblock %}
+
+{% block content %}
+<header class="flex-between" style="margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;">
+    <div>
+        <h1>EV Guides & Resources</h1>
+        <p class="muted">Learn the essentials of EV ownership with concise, actionable guides.</p>
+    </div>
+</header>
+
+<section class="grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
+    {% for guide in guides %}
+    <article style="border: 1px solid var(--muted-border-color); border-radius: 0.75rem; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;">
+        <h2 style="margin: 0; font-size: 1.25rem;"><a href="{% url 'guides:detail' guide.slug %}">{{ guide.title }}</a></h2>
+        <p style="margin: 0;">{{ guide.description }}</p>
+        <a class="secondary" href="{% url 'guides:detail' guide.slug %}">Read guide</a>
+    </article>
+    {% empty %}
+    <article class="muted">
+        <p>No guides published yet. Check back soon.</p>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

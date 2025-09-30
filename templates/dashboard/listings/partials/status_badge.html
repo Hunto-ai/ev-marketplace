@@ -1,0 +1,11 @@
+{% if listing.status == 'approved' %}
+    <span class="status success">Approved</span>
+{% elif listing.status == 'pending' %}
+    <span class="status warning">Pending</span>
+{% elif listing.status == 'rejected' %}
+    <span class="status error">Rejected</span>
+{% elif listing.status == 'archived' %}
+    <span class="status secondary">Archived</span>
+{% else %}
+    <span class="status">Draft</span>
+{% endif %}

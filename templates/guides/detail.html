@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{{ guide.title }} - EV Marketplace{% endblock %}
+
+{% block content %}
+<nav aria-label="Breadcrumb" style="margin-bottom: 1rem;">
+    <a href="{% url 'home' %}">Home</a> › <a href="{% url 'guides:list' %}">Guides</a> › {{ guide.title }}
+</nav>
+
+<article style="display: grid; gap: 1rem;">
+    <header style="display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap;">
+        <div>
+            <h1 style="margin: 0;">{{ guide.title }}</h1>
+        </div>
+        <div>
+            <small class="muted">Updated {{ updated_at|naturaltime }}</small>
+        </div>
+    </header>
+
+    <div class="guide-body" style="display: grid; gap: 1rem;">
+        {{ guide_html|safe }}
+    </div>
+</article>
+{% endblock %}
