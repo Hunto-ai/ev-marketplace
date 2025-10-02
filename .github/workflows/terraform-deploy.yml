@@ -1,3 +1,4 @@
+# Uses GitHub OIDC to assume AWS role for Terraform operations
 name: Terraform Deploy
 
 on:
