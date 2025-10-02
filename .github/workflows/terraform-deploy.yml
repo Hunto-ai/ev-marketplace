@@ -6,6 +6,7 @@ on:
     branches:
       - develop
       - main
+      - master
     paths:
       - terraform/**
       - .github/workflows/terraform-deploy.yml
