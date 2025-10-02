@@ -51,7 +51,7 @@ jobs:
       - name: Select workspace
         working-directory: terraform
         run: |
-          terraform workspace select "$TERRAFORM_WORKSPACE" || terraform workspace new "$TERRAFORM_WORKSPACE"
+          terraform workspace select -or-create "$TERRAFORM_WORKSPACE"
       - name: Terraform plan
         working-directory: terraform
         run: terraform plan
@@ -85,7 +85,7 @@ jobs:
       - name: Select workspace
         working-directory: terraform
         run: |
-          terraform workspace select "$TERRAFORM_WORKSPACE" || terraform workspace new "$TERRAFORM_WORKSPACE"
+          terraform workspace select -or-create "$TERRAFORM_WORKSPACE"
       - name: Terraform plan
         working-directory: terraform
         run: terraform plan
