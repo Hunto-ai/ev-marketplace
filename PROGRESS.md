@@ -16,3 +16,22 @@
 ## 2025-09-30 (session close)
 - Added Markdown-driven guides, sitemap/robots wiring, dealer filters, canonical URLs, README/.env refresh, and enforcement tests (SQLite-based).
 - Session closed, next bot should pick up from CI wiring.
+
+## 2025-09-30 (CI & QA)
+
+### Implemented
+- Locked Terraform deploys behind GitHub environment approvals (`staging`/`production`) and documented the manual apply flow.
+- Updated `.github/workflows/ci.yml` with lint, security, Playwright + axe accessibility smoke, sqlite, and Postgres jobs.
+- Added `package.json`, Playwright config/specs, and seeded demo routes for accessibility smoke coverage.
+- Expanded `manage.py seed_models` with `[DEMO]` dealers, listings, and representative inquiries/events for dashboard QA.
+
+### Tests
+- `.venv/Scripts/python.exe manage.py test` with `DATABASE_URL=sqlite:///db.sqlite3`.
+- `.venv/Scripts/python.exe manage.py seed_models`.
+- `npm run test:a11y` (after `python manage.py runserver`).
+
+### Next Up
+- Populate GitHub environment secrets (AWS/Terraform) and required reviewers ahead of first deploy.
+- Grow the Playwright suite to cover authenticated seller paths and JSON-LD assertions.
+- Add seeded demo notifications/inbox read states once dashboard moderation polish lands.
+

@@ -1,4 +1,4 @@
-<table role="grid" id="listing-table">
+<table role="grid" id="listing-table" class="ev-table">
     <thead>
         <tr>
             <th>Listing</th>
@@ -13,7 +13,7 @@
             {% include "dashboard/listings/partials/listing_row.html" with listing=listing %}
         {% empty %}
             <tr>
-                <td colspan="5">No listings yet. <a href="{% url 'dashboard:create' %}">Create your first listing</a>.</td>
+                <td colspan="5" class="ev-muted">No listings yet. <a href="{% url 'dashboard:create' %}">Create your first listing</a>.</td>
             </tr>
         {% endfor %}
     </tbody>

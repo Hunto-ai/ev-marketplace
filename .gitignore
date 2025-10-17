@@ -13,7 +13,7 @@ dist/
 
 # Django
 db.sqlite3
-media/
+
 staticfiles/
 
 # IDE
@@ -36,3 +36,9 @@ crash.log
 htmlcov/
 .coverage*
 .pytest_cache/
+
+# Node / Playwright
+node_modules/
+playwright-report/
+test-results/
+`n.bin/

@@ -1,11 +1,11 @@
 {% if listing.status == 'approved' %}
-    <span class="status success">Approved</span>
+    <span class="ev-status ev-status--success">Approved</span>
 {% elif listing.status == 'pending' %}
-    <span class="status warning">Pending</span>
+    <span class="ev-status ev-status--warning">Pending</span>
 {% elif listing.status == 'rejected' %}
-    <span class="status error">Rejected</span>
+    <span class="ev-status ev-status--danger">Rejected</span>
 {% elif listing.status == 'archived' %}
-    <span class="status secondary">Archived</span>
+    <span class="ev-status ev-status--secondary">Archived</span>
 {% else %}
-    <span class="status">Draft</span>
+    <span class="ev-status">Draft</span>
 {% endif %}

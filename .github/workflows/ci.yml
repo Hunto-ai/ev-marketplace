@@ -1,0 +1,169 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install linters
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff black isort
+      - name: Ruff lint
+        run: ruff check .
+      - name: Black format check
+        run: black --check .
+      - name: isort import order
+        run: isort --check-only .
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install Bandit
+        run: |
+          python -m pip install --upgrade pip
+          pip install bandit
+      - name: Bandit scan
+        run: bandit -r . -x .venv
+
+  accessibility:
+    runs-on: ubuntu-latest
+    env:
+      DJANGO_SECRET_KEY: test-secret-key
+      DATABASE_URL: sqlite:///db.sqlite3
+      DJANGO_DEBUG: 'False'
+      DJANGO_SETTINGS_MODULE: config.settings.local
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Prepare database
+        run: |
+          python manage.py migrate --noinput
+          python manage.py seed_models
+      - name: Start Django server
+        run: |
+          python manage.py runserver 0.0.0.0:8000 --noreload &
+          echo $! > django.pid
+      - name: Wait for server
+        run: |
+          for i in {1..20}; do
+            if curl -sSf http://127.0.0.1:8000/ > /dev/null; then
+              echo "Server ready"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Server failed to start"
+          cat django.pid | xargs kill
+          exit 1
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install npm dependencies
+        run: npm install
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+      - name: Accessibility smoke check
+        run: npm run test:a11y
+      - name: Shutdown Django server
+        if: always()
+        run: |
+          if [ -f django.pid ]; then
+            cat django.pid | xargs kill || true
+          fi
+
+  sqlite:
+    runs-on: ubuntu-latest
+    env:
+      DJANGO_SECRET_KEY: test-secret-key
+      DATABASE_URL: sqlite:///db.sqlite3
+      DJANGO_DEBUG: 'False'
+      DJANGO_SETTINGS_MODULE: config.settings.local
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Django checks
+        run: python manage.py check
+      - name: Run sqlite tests
+        run: python manage.py test --verbosity 2
+
+  postgres:
+    runs-on: ubuntu-latest
+    env:
+      DJANGO_SECRET_KEY: test-secret-key
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/evthing
+      DJANGO_DEBUG: 'False'
+      DJANGO_SETTINGS_MODULE: config.settings.local
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: evthing
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Apply migrations
+        run: python manage.py migrate --noinput
+      - name: Seed baseline ModelSpec data
+        run: python manage.py seed_models
+      - name: Django checks (Postgres)
+        run: python manage.py check
+      - name: Run Postgres tests
+        run: python manage.py test --verbosity 2

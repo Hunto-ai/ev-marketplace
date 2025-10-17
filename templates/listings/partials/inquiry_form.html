@@ -1,16 +1,17 @@
-<div id="inquiry-form">
+<div id="inquiry-form" class="ev-card">
     <form method="post"
           action="{% url 'listings:inquire' listing.slug %}"
           hx-post="{% url 'listings:inquire' listing.slug %}"
           hx-target="#inquiry-form"
-          hx-swap="outerHTML">
+          hx-swap="outerHTML"
+          class="ev-card__body ev-stack">
         {% csrf_token %}
         {% if form.non_field_errors %}
-            <article class="error" style="margin-bottom: 0.75rem;">
+            <div class="ev-alert ev-alert--error">
                 {{ form.non_field_errors|join:", " }}
-            </article>
+            </div>
         {% endif %}
-        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+        <div class="ev-form__grid">
             <label>
                 <span>Name *</span>
                 {{ form.name }}
@@ -33,7 +34,7 @@
             {{ form.message.errors }}
         </label>
         {% if captcha_provider and captcha_provider != 'none' %}
-        <div class="captcha-block" style="margin-top: 1rem;">
+        <div class="captcha-block">
             {% if captcha_provider == 'turnstile' %}
                 <div class="cf-turnstile" data-sitekey="{{ captcha_site_key }}"></div>
                 <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -44,8 +45,8 @@
         </div>
         {% endif %}
         <input type="hidden" name="captcha_token" value="">
-        <footer style="margin-top: 1rem; display: flex; gap: 0.5rem;">
-            <button type="submit" class="contrast">Send inquiry</button>
+        <footer class="ev-form__footer">
+            <button type="submit" class="ev-btn ev-btn--primary">Send inquiry</button>
         </footer>
     </form>
 </div>

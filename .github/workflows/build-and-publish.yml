@@ -1,0 +1,74 @@
+name: Build Container
+
+on:
+  push:
+    branches:
+      - develop
+      - main
+
+permissions:
+  contents: read
+  id-token: write
+  packages: write
+
+env:
+  AWS_REGION: us-east-2
+  PROJECT_SLUG: evmarket
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine image metadata
+        id: meta
+        run: |
+          if [ "${GITHUB_REF_NAME}" = "main" ]; then
+            workspace="prod"
+            repository="${PROJECT_SLUG}-production-app"
+            image_tag="prod-${GITHUB_SHA::7}"
+          else
+            workspace="staging"
+            repository="${PROJECT_SLUG}-staging-app"
+            image_tag="staging-${GITHUB_SHA::7}"
+          fi
+
+          echo "workspace=${workspace}" >> "$GITHUB_OUTPUT"
+          echo "repository=${repository}" >> "$GITHUB_OUTPUT"
+          echo "image_tag=${image_tag}" >> "$GITHUB_OUTPUT"
+          echo "IMAGE_TAG=${image_tag}" >> "$GITHUB_ENV"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::654654601496:role/evmarket-github-oidc
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build image
+        run: |
+          docker build --build-arg GIT_SHA=${GITHUB_SHA} -t ${REGISTRY}/${{ steps.meta.outputs.repository }}:${{ steps.meta.outputs.image_tag }} .
+
+      - name: Push image
+        run: |
+          docker push ${REGISTRY}/${{ steps.meta.outputs.repository }}:${{ steps.meta.outputs.image_tag }}
+
+      - name: Write metadata artifact
+        run: |
+          cat <<'JSON' > image_metadata.json
+          {
+            "repository": "${{ steps.login-ecr.outputs.registry }}/${{ steps.meta.outputs.repository }}",
+            "image_tag": "${{ steps.meta.outputs.image_tag }}"
+          }
+          JSON
+
+      - name: Upload metadata artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: image-metadata-${{ steps.meta.outputs.workspace }}
+          path: image_metadata.json
+          retention-days: 3

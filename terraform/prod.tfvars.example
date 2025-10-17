@@ -1,0 +1,9 @@
+# Copy to prod.tfvars and adjust values for production.
+app_runner_image_tag = "prod-<git-sha>"
+media_bucket_force_destroy = false
+enable_redis = true
+enable_ses  = true
+# ses_email_identity = "example.com"
+# hosted_zone_id     = "Z0123456789ABC"
+parameter_store_path_prefix = "/evmarket"
+app_runner_desired_count = 3

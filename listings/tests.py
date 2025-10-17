@@ -7,6 +7,7 @@ from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.core import mail
+from django.core.management import call_command
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase, override_settings
 from django.urls import reverse
@@ -30,6 +31,46 @@ from listings.models import (
     SavedSearch,
 )
 from listings.tasks import process_listing_photo
+from listings.management.commands.seed_models import MODEL_SPECS
+
+
+class SeedModelsCommandTests(TestCase):
+    def test_seed_models_command_is_idempotent(self) -> None:
+        call_command("seed_models", verbosity=0)
+        initial_specs = ModelSpec.objects.count()
+        initial_dealers = DealerProfile.objects.count()
+        initial_listings = Listing.objects.count()
+        initial_inquiries = Inquiry.objects.count()
+        initial_events = InquiryEvent.objects.count()
+
+        self.assertGreaterEqual(initial_specs, len(MODEL_SPECS))
+        self.assertGreaterEqual(initial_dealers, 2)
+        self.assertGreaterEqual(initial_listings, 4)
+        self.assertGreaterEqual(initial_inquiries, 3)
+        self.assertGreaterEqual(initial_events, 5)
+
+        call_command("seed_models", verbosity=0)
+        self.assertEqual(ModelSpec.objects.count(), initial_specs)
+        self.assertEqual(DealerProfile.objects.count(), initial_dealers)
+        self.assertEqual(Listing.objects.count(), initial_listings)
+        self.assertEqual(Inquiry.objects.count(), initial_inquiries)
+        self.assertEqual(InquiryEvent.objects.count(), initial_events)
+
+        demo_listing = Listing.objects.get(slug="demo-2024-tesla-model-3-rwd")
+        self.assertTrue(demo_listing.title.startswith("[DEMO]"))
+        self.assertEqual(demo_listing.status, ListingStatus.APPROVED)
+        self.assertIsNotNone(demo_listing.spec)
+        self.assertEqual(demo_listing.dealer.name, "Demo EV Hub")
+        self.assertEqual(demo_listing.inquiries.count(), 1)
+
+        delivered = Inquiry.objects.get(email="delivered.buyer@example.com")
+        self.assertEqual(delivered.delivery_status, InquiryDeliveryStatus.SENT)
+        self.assertIsNotNone(delivered.delivered_at)
+        self.assertIsNotNone(delivered.seller_notified_at)
+
+        failed = Inquiry.objects.get(email="failed.delivery@example.com")
+        self.assertEqual(failed.delivery_status, InquiryDeliveryStatus.FAILED)
+        self.assertIn("sandbox", failed.delivery_error)
 
 
 class ListingModelTests(TestCase):

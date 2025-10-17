@@ -224,11 +224,10 @@ class Listing(models.Model):
 
     @property
     def primary_photo(self) -> "Photo | None":
-        photos = list(self.photos.all())
-        for photo in photos:
-            if photo.is_primary:
-                return photo
-        return photos[0] if photos else None
+        primary = self.photos.filter(is_primary=True).first()
+        if primary:
+            return primary
+        return self.photos.first()
 
     def transition(self, new_status: str, *, moderator: settings.AUTH_USER_MODEL | None = None) -> None:
         if new_status not in ListingStatus.values:

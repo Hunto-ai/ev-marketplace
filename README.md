@@ -3,6 +3,10 @@
 ## Overview
 The EV Marketplace MVP is a Django 5 + HTMX application for listing electric vehicles, moderating seller activity, and publishing dealer and buyer resources. The project targets a shippable marketplace foundation with clear feature flags and an AWS-friendly deployment path.
 
+## Front-End Style Guide
+- See [STYLE_GUIDE.md](STYLE_GUIDE.md) for the shared design language, component tokens, and implementation roadmap.
+- New UI work should reference the guide before introducing templates or CSS changes.
+
 ## Requirements
 - Python 3.11
 - pip
@@ -14,9 +18,10 @@ The EV Marketplace MVP is a Django 5 + HTMX application for listing electric veh
 2. Activate it: `.venv\Scripts\Activate.ps1`
 3. Install dependencies: `pip install -r requirements.txt`
 4. Copy environment template: `Copy-Item .env.example .env`
-5. Update `.env` with the values for your environment (see Feature Flags and Environment Variables below)
+5. Update `.env` with the values for your environment (see Feature Flags and Environment Variables below). For local development without Postgres running, set `DATABASE_URL=sqlite:///db.sqlite3`.
 6. Run database migrations: `python manage.py migrate`
-7. Start the dev server: `python manage.py runserver`
+7. (Optional) Seed demo content for listings, dealers, and inquiries: `python manage.py seed_models`
+8. Start the dev server: `python manage.py runserver`
 
 ## MVP Scope (Ship This)
 - **Listings** – seller CRUD with up to 10 photos, status flow `draft → pending → active → sold`, automatic JSON-LD for detail pages.
@@ -77,6 +82,17 @@ Set these in `.env` (see `.env.example`). Keep saved searches off for MVP QA.
 - `/dashboard/` inventory table with HTMX moderation controls.
 - `/sell/` and `/dashboard/listings/create/` route to the listing form.
 - Photo uploads currently use default storage; presigned S3 hooks are stubbed for future work.
+
+## Pushing Application Updates
+The production stack runs Django 5 (Python 3.11) inside a Docker image hosted on AWS App Runner, with Terraform managing infrastructure and GitHub Actions handling CI, image publishing, and automated applies. To ship manual changes:
+
+1. **Build the image** – `docker build -t 654654601496.dkr.ecr.us-east-2.amazonaws.com/evmarket-staging-app:<tag> .` (requires Docker Desktop and AWS CLI configured for the `evuser` profile).
+2. **Push to ECR** – `aws ecr get-login-password --profile evuser --region us-east-2 | docker login --username AWS --password-stdin 654654601496.dkr.ecr.us-east-2.amazonaws.com`, then `docker push 654654601496.dkr.ecr.us-east-2.amazonaws.com/evmarket-staging-app:<tag>`.
+3. **Update Terraform vars** – set `app_runner_image_tag` (and any flags such as `app_runner_health_check_path`) in `terraform/staging.tfvars`.
+4. **Apply Terraform** – from the `terraform/` directory run `AWS_PROFILE=evuser .\.bin\terraform.exe apply -var-file=staging.tfvars`.
+5. **Verify the service** – fetch the URL with `terraform output app_runner_service_url` or `aws apprunner describe-service` and smoke test listings, guides, and inquiry flows.
+
+GitHub Actions workflows (`build-and-publish.yml`, `terraform-deploy.yml`) perform the same build and apply steps when you prefer the automated path.
 
 ## Authentication
 - Custom `accounts.User` with email login and role (`buyer`, `seller`, `dealer`, `admin`).

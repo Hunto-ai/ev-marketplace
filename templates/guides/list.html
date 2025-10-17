@@ -3,24 +3,39 @@
 {% block title %}EV Guides - EV Marketplace{% endblock %}
 
 {% block content %}
-<header class="flex-between" style="margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;">
-    <div>
-        <h1>EV Guides & Resources</h1>
-        <p class="muted">Learn the essentials of EV ownership with concise, actionable guides.</p>
+<div class="container-fluid">
+    <div class="p-4 p-md-5 mb-4 text-white rounded" style="background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 50%, #a78bfa 100%);">
+        <div class="col-md-8 col-lg-6 px-0">
+            <h1 class="display-4 fw-bold mb-3">EV Guides & Resources</h1>
+            <p class="lead mb-0">Learn the essentials of EV ownership with expert guides covering buying, charging, and maintenance.</p>
+        </div>
     </div>
-</header>
 
-<section class="grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
-    {% for guide in guides %}
-    <article style="border: 1px solid var(--muted-border-color); border-radius: 0.75rem; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;">
-        <h2 style="margin: 0; font-size: 1.25rem;"><a href="{% url 'guides:detail' guide.slug %}">{{ guide.title }}</a></h2>
-        <p style="margin: 0;">{{ guide.description }}</p>
-        <a class="secondary" href="{% url 'guides:detail' guide.slug %}">Read guide</a>
-    </article>
-    {% empty %}
-    <article class="muted">
-        <p>No guides published yet. Check back soon.</p>
-    </article>
-    {% endfor %}
-</section>
+    {% if guides %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for guide in guides %}
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <h2 class="h5 card-title mb-3">
+                        <a href="{% url 'guides:detail' guide.slug %}" class="text-decoration-none">{{ guide.title }}</a>
+                    </h2>
+                    <p class="card-text text-muted">{{ guide.description }}</p>
+                    <div class="mt-auto pt-3">
+                        <a href="{% url 'guides:detail' guide.slug %}" class="btn btn-primary btn-sm">Read Guide</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <h2 class="h4 mb-3">Guides Coming Soon</h2>
+            <p class="text-muted">We're curating content to help new EV drivers get rolling. Check back shortly.</p>
+        </div>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

@@ -3,48 +3,354 @@
 {% block dashboard_title %}{{ view.title }}{% endblock %}
 
 {% block dashboard_content %}
-<h1>{{ view.title }}</h1>
-<form method="post" enctype="multipart/form-data">
-    {% csrf_token %}
-    <article>
-        {{ form.non_field_errors }}
-        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
-            {% for field in form.visible_fields %}
-                <label>
-                    <span>{{ field.label }}{% if field.field.required %} *{% endif %}</span>
-                    {{ field }}
-                    {% if field.help_text %}<small>{{ field.help_text }}</small>{% endif %}
-                    {{ field.errors }}
-                </label>
-            {% endfor %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 mb-0">{{ view.title }}</h1>
+            <a href="{% url 'dashboard:index' %}" class="btn btn-sm btn-outline-secondary">
+                <i class="fas fa-arrow-left me-1"></i>Back to Listings
+            </a>
         </div>
-    </article>
 
-    <article>
-        <header><h2>Photos</h2></header>
-        {{ photos.management_form }}
-        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
-            {% for form in photos.forms %}
-                <div class="photo-form">
-                    {% for field in form.visible_fields %}
-                        <label>
-                            <span>{{ field.label }}</span>
-                            {{ field }}
-                            {{ field.errors }}
-                        </label>
-                    {% endfor %}
-                    {% if form.instance.pk %}
-                        <label>{{ form.DELETE }} Remove</label>
-                    {% endif %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+                <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <!-- Basic Information -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h2 class="h5 mb-0">
+                        <i class="fas fa-info-circle me-2 text-primary"></i>Basic Information
+                    </h2>
                 </div>
-            {% endfor %}
-        </div>
-        <p class="muted">Add up to 10 photos. First photo becomes your cover image.</p>
-    </article>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="{{ form.title.id_for_label }}" class="form-label fw-bold">
+                                {{ form.title.label }}
+                                {% if form.title.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            <input type="text" name="{{ form.title.name }}" id="{{ form.title.id_for_label }}"
+                                   class="form-control {% if form.title.errors %}is-invalid{% endif %}"
+                                   value="{{ form.title.value|default:'' }}"
+                                   placeholder="e.g., 2023 Tesla Model 3 Long Range - Like New">
+                            {% if form.title.help_text %}<small class="form-text text-muted">{{ form.title.help_text }}</small>{% endif %}
+                            {% if form.title.errors %}<div class="invalid-feedback">{{ form.title.errors }}</div>{% endif %}
+                        </div>
 
-    <footer>
-        <button type="submit" class="contrast">Save listing</button>
-        <a role="button" class="secondary" href="{% url 'dashboard:index' %}">Cancel</a>
-    </footer>
-</form>
+                        <div class="col-12">
+                            <label for="{{ form.description.id_for_label }}" class="form-label fw-bold">
+                                {{ form.description.label }}
+                                {% if form.description.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            <textarea name="{{ form.description.name }}" id="{{ form.description.id_for_label }}"
+                                      class="form-control {% if form.description.errors %}is-invalid{% endif %}"
+                                      rows="5"
+                                      placeholder="Describe your vehicle's condition, history, features, and why it's a great buy...">{{ form.description.value|default:'' }}</textarea>
+                            {% if form.description.help_text %}<small class="form-text text-muted">{{ form.description.help_text }}</small>{% endif %}
+                            {% if form.description.errors %}<div class="invalid-feedback">{{ form.description.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Vehicle Details -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h2 class="h5 mb-0">
+                        <i class="fas fa-car me-2 text-primary"></i>Vehicle Details
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <label for="{{ form.year.id_for_label }}" class="form-label fw-bold">
+                                {{ form.year.label }}{% if form.year.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            {{ form.year }}
+                            {% if form.year.errors %}<div class="invalid-feedback d-block">{{ form.year.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="{{ form.make.id_for_label }}" class="form-label fw-bold">
+                                {{ form.make.label }}{% if form.make.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            {{ form.make }}
+                            {% if form.make.errors %}<div class="invalid-feedback d-block">{{ form.make.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="{{ form.model.id_for_label }}" class="form-label fw-bold">
+                                {{ form.model.label }}{% if form.model.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            {{ form.model }}
+                            {% if form.model.errors %}<div class="invalid-feedback d-block">{{ form.model.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-3">
+                            <label for="{{ form.trim.id_for_label }}" class="form-label">
+                                {{ form.trim.label }}
+                            </label>
+                            {{ form.trim }}
+                            {% if form.trim.errors %}<div class="invalid-feedback d-block">{{ form.trim.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.price.id_for_label }}" class="form-label fw-bold">
+                                {{ form.price.label }}{% if form.price.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            <div class="input-group">
+                                <span class="input-group-text">$</span>
+                                {{ form.price }}
+                            </div>
+                            {% if form.price.errors %}<div class="invalid-feedback d-block">{{ form.price.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.mileage_km.id_for_label }}" class="form-label fw-bold">
+                                {{ form.mileage_km.label }}{% if form.mileage_km.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            <div class="input-group">
+                                {{ form.mileage_km }}
+                                <span class="input-group-text">km</span>
+                            </div>
+                            {% if form.mileage_km.errors %}<div class="invalid-feedback d-block">{{ form.mileage_km.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.drivetrain.id_for_label }}" class="form-label">
+                                {{ form.drivetrain.label }}
+                            </label>
+                            {{ form.drivetrain }}
+                            {% if form.drivetrain.errors %}<div class="invalid-feedback d-block">{{ form.drivetrain.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EV Specifications -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h2 class="h5 mb-0">
+                        <i class="fas fa-bolt me-2 text-primary"></i>EV Specifications
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="{{ form.battery_capacity_kwh.id_for_label }}" class="form-label">
+                                {{ form.battery_capacity_kwh.label }}
+                            </label>
+                            <div class="input-group">
+                                {{ form.battery_capacity_kwh }}
+                                <span class="input-group-text">kWh</span>
+                            </div>
+                            {% if form.battery_capacity_kwh.errors %}<div class="invalid-feedback d-block">{{ form.battery_capacity_kwh.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.range_km.id_for_label }}" class="form-label">
+                                {{ form.range_km.label }}
+                            </label>
+                            <div class="input-group">
+                                {{ form.range_km }}
+                                <span class="input-group-text">km</span>
+                            </div>
+                            {% if form.range_km.errors %}<div class="invalid-feedback d-block">{{ form.range_km.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.dc_fast_charge_type.id_for_label }}" class="form-label">
+                                {{ form.dc_fast_charge_type.label }}
+                            </label>
+                            {{ form.dc_fast_charge_type }}
+                            {% if form.dc_fast_charge_type.errors %}<div class="invalid-feedback d-block">{{ form.dc_fast_charge_type.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.battery_warranty_years.id_for_label }}" class="form-label">
+                                {{ form.battery_warranty_years.label }}
+                            </label>
+                            <div class="input-group">
+                                {{ form.battery_warranty_years }}
+                                <span class="input-group-text">years</span>
+                            </div>
+                            {% if form.battery_warranty_years.errors %}<div class="invalid-feedback d-block">{{ form.battery_warranty_years.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label for="{{ form.battery_warranty_km.id_for_label }}" class="form-label">
+                                {{ form.battery_warranty_km.label }}
+                            </label>
+                            <div class="input-group">
+                                {{ form.battery_warranty_km }}
+                                <span class="input-group-text">km</span>
+                            </div>
+                            {% if form.battery_warranty_km.errors %}<div class="invalid-feedback d-block">{{ form.battery_warranty_km.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-4">
+                            <label class="form-label">Features</label>
+                            <div class="form-check">
+                                {{ form.has_heat_pump }}
+                                <label class="form-check-label" for="{{ form.has_heat_pump.id_for_label }}">
+                                    <i class="fas fa-thermometer-half me-1"></i>{{ form.has_heat_pump.label }}
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="col-12">
+                            <label for="{{ form.spec.id_for_label }}" class="form-label">
+                                {{ form.spec.label }}
+                            </label>
+                            {{ form.spec }}
+                            <small class="form-text text-muted">Optional: Link to a pre-defined vehicle spec for auto-fill</small>
+                            {% if form.spec.errors %}<div class="invalid-feedback d-block">{{ form.spec.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h2 class="h5 mb-0">
+                        <i class="fas fa-map-marker-alt me-2 text-primary"></i>Location
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="{{ form.city.id_for_label }}" class="form-label fw-bold">
+                                {{ form.city.label }}{% if form.city.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            {{ form.city }}
+                            {% if form.city.errors %}<div class="invalid-feedback d-block">{{ form.city.errors }}</div>{% endif %}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="{{ form.province.id_for_label }}" class="form-label fw-bold">
+                                {{ form.province.label }}{% if form.province.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            {{ form.province }}
+                            {% if form.province.errors %}<div class="invalid-feedback d-block">{{ form.province.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Photos -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h2 class="h5 mb-0">
+                        <i class="fas fa-images me-2 text-primary"></i>Photos
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted mb-4">
+                        <i class="fas fa-info-circle me-1"></i>Add up to 10 high-quality photos. The first photo will be your main listing image.
+                    </p>
+
+                    {{ photos.management_form }}
+
+                    <div class="row g-3">
+                        {% for photo_form in photos.forms %}
+                        <div class="col-md-6 photo-form-item">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h6 class="card-subtitle mb-3 text-muted">Photo {{ forloop.counter }}</h6>
+
+                                    {% if photo_form.instance.image %}
+                                    <div class="mb-3">
+                                        <img src="{{ photo_form.instance.image.url }}" class="img-fluid rounded" alt="Preview" style="max-height: 200px;">
+                                    </div>
+                                    {% endif %}
+
+                                    <div class="mb-2">
+                                        <label for="{{ photo_form.image.id_for_label }}" class="form-label small">{{ photo_form.image.label }}</label>
+                                        {{ photo_form.image }}
+                                        {% if photo_form.image.errors %}<div class="invalid-feedback d-block">{{ photo_form.image.errors }}</div>{% endif %}
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <label for="{{ photo_form.caption.id_for_label }}" class="form-label small">{{ photo_form.caption.label }}</label>
+                                        {{ photo_form.caption }}
+                                    </div>
+
+                                    <div class="mb-2">
+                                        <label for="{{ photo_form.alt_text.id_for_label }}" class="form-label small">{{ photo_form.alt_text.label }}</label>
+                                        {{ photo_form.alt_text }}
+                                    </div>
+
+                                    <div class="row">
+                                        <div class="col-6">
+                                            <label for="{{ photo_form.sort_order.id_for_label }}" class="form-label small">{{ photo_form.sort_order.label }}</label>
+                                            {{ photo_form.sort_order }}
+                                        </div>
+                                        <div class="col-6">
+                                            <div class="form-check mt-4">
+                                                {{ photo_form.is_primary }}
+                                                <label class="form-check-label small" for="{{ photo_form.is_primary.id_for_label }}">
+                                                    {{ photo_form.is_primary.label }}
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {% if photo_form.instance.pk %}
+                                    <div class="form-check mt-3">
+                                        {{ photo_form.DELETE }}
+                                        <label class="form-check-label text-danger small" for="{{ photo_form.DELETE.id_for_label }}">
+                                            Remove this photo
+                                        </label>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Additional Options -->
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h2 class="h5 mb-0">
+                        <i class="fas fa-tags me-2 text-primary"></i>Additional Options
+                    </h2>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="{{ form.tags.id_for_label }}" class="form-label">
+                                {{ form.tags.label }}
+                            </label>
+                            {{ form.tags }}
+                            <small class="form-text text-muted">e.g., low-mileage, single-owner, winter-tires</small>
+                            {% if form.tags.errors %}<div class="invalid-feedback d-block">{{ form.tags.errors }}</div>{% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Form Actions -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{% url 'dashboard:index' %}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-1"></i>Cancel
+                        </a>
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-save me-2"></i>Save Listing
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}

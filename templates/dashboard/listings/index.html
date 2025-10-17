@@ -3,12 +3,12 @@
 {% block dashboard_title %}Listings{% endblock %}
 
 {% block dashboard_content %}
-<header class="flex-between">
+<header class="ev-dashboard__header">
     <h1>Your listings</h1>
-    <a role="button" class="contrast" href="{% url 'dashboard:create' %}">New listing</a>
+    <a class="ev-btn ev-btn--primary" href="{% url 'dashboard:create' %}">New listing</a>
 </header>
 
-<form method="get" class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+<form method="get" class="ev-dashboard__filters">
     <label>
         <span>Status</span>
         <select name="status" hx-get="{% url 'dashboard:index' %}" hx-target="#listing-table" hx-trigger="change" hx-push-url="true">
@@ -20,5 +20,7 @@
     </label>
 </form>
 
-{% include "dashboard/listings/partials/list_table.html" %}
+<div class="ev-table-wrapper">
+    {% include "dashboard/listings/partials/list_table.html" %}
+</div>
 {% endblock %}

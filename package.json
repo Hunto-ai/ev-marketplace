@@ -1,0 +1,12 @@
+{
+  "name": "evthing-ci",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "test:a11y": "playwright test --config=playwright.config.js --reporter=list"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.2.2",
+    "@playwright/test": "^1.48.2"
+  }
+}

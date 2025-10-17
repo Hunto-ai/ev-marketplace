@@ -1,0 +1,41 @@
+# Source control + editor
+.git
+.gitignore
+.vscode
+.idea
+.DS_Store
+
+# Python artifacts
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+*.db
+.venv/
+
+# Node/Playwright
+node_modules/
+playwright-report/
+
+# Local env/config snapshots
+.env
+.env.*
+*.env
+
+# Test/runtime leftovers
+.coverage*
+htmlcov/
+pytest.log
+staticfiles/
+media/
+
+# Infrastructure & docs not required for container build
+terraform/
+ci/
+.github/
+ACCEPTANCE.md
+CODEX_NOTES.md
+CONNECTOR_TODO.md
+PROGRESS.md
+handoff.md
+README.md

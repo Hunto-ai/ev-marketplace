@@ -1,61 +1,147 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}EV Marketplace{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="{% static 'css/ev.css' %}" />
+    
     <script src="https://unpkg.com/htmx.org@1.9.12" integrity="sha384-ql0gZRXjzJSTZ6py0X58F3RDeo63HgNbUsVTNffraZx0VhV77n5qD0m+SKpCcfLk" crossorigin="anonymous"></script>
     {% if canonical_url %}<link rel="canonical" href="{{ canonical_url }}" />{% endif %}
     {% block head %}{% endblock %}
-    <style>
-        .flex-between { display: flex; align-items: center; justify-content: space-between; }
-        table .actions { display: flex; gap: 0.5rem; justify-content: flex-end; }
-        .status { padding: 0.25rem 0.5rem; border-radius: 999px; background: var(--muted-border-color); display: inline-block; }
-        .status.success { background: var(--form-element-valid-border-color); color: var(--form-element-valid-focus-color); }
-        .status.warning { background: #fcefc0; color: #8a6d3b; }
-        .status.error { background: #f9d6d5; color: #8b2f2f; }
-        .status.secondary { background: #dcdcdc; color: #4b4b4b; }
-        .photo-form { border: 1px solid var(--muted-border-color); padding: 0.5rem; border-radius: 0.5rem; }
-        .badge { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; background: var(--contrast); color: var(--contrast-inverse); font-size: 0.7rem; }
-        tr.unread { background: rgba(0, 123, 255, 0.08); }
-        .delivery-error { color: #8b2f2f; }
-    </style>
 </head>
 <body>
-    <header class="container">
-        <nav>
-            <ul>
-                <li><strong><a href="{% url 'home' %}">EV Marketplace</a></strong></li>
-                <li><a href="{% url 'listings:list' %}">Browse listings</a></li>
-                <li><a href="{% url 'dealers:list' %}">Find a dealer</a></li>
-                <li><a href="{% url 'guides:list' %}">Guides</a></li>
-                <li><a href="{% url 'sell' %}">Sell an EV</a></li>
-            </ul>
-            <ul>
-                {% if user.is_authenticated %}
-                    <li><a href="{% url 'dashboard:index' %}">Dashboard</a></li>
-                    <li><a href="{% url 'account_logout' %}">Logout</a></li>
-                {% else %}
-                    <li><a href="{% url 'account_login' %}">Login</a></li>
-                    <li><a href="{% url 'account_signup' %}">Sign up</a></li>
-                {% endif %}
-            </ul>
-        </nav>
-    </header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold text-primary" href="{% url 'home' %}">
+                <i class="fas fa-bolt me-2"></i>EV Marketplace
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'listings:list' %}">
+                            <i class="fas fa-car me-1"></i>Browse Listings
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'dealers:list' %}">
+                            <i class="fas fa-store me-1"></i>Dealers
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'guides:list' %}">
+                            <i class="fas fa-book me-1"></i>Guides
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav mb-2 mb-lg-0">
+                    <li class="nav-item me-2">
+                        <a class="nav-link btn btn-outline-primary btn-sm" href="{% url 'sell' %}">
+                            <i class="fas fa-plus me-1"></i>Sell Your EV
+                        </a>
+                    </li>
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'dashboard:index' %}">
+                                <i class="fas fa-tachometer-alt me-1"></i>Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'account_logout' %}">
+                                <i class="fas fa-sign-out-alt me-1"></i>Logout
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'account_login' %}">Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-primary btn-sm" href="{% url 'account_signup' %}">Sign Up</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
 
     {% if messages %}
-        <section class="container">
+        <div class="container mt-3">
             {% for message in messages %}
-                <article class="{% if message.tags %}{{ message.tags }}{% endif %}">{{ message }}</article>
+                {% with tags=message.tags %}
+                    {% if "success" in tags %}
+                        <div class="alert alert-success" role="alert">{{ message }}</div>
+                    {% elif "error" in tags or "danger" in tags %}
+                        <div class="alert alert-danger" role="alert">{{ message }}</div>
+                    {% elif "warning" in tags %}
+                        <div class="alert alert-warning" role="alert">{{ message }}</div>
+                    {% else %}
+                        <div class="alert alert-info" role="alert">{{ message }}</div>
+                    {% endif %}
+                {% endwith %}
             {% endfor %}
-        </section>
+        </div>
     {% endif %}
 
-    <main class="container">
+    <main class="container mt-4 mb-5">
         {% block content %}{% endblock %}
     </main>
 
+    <footer class="bg-light mt-auto py-4 border-top">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-4 mb-3 mb-md-0">
+                    <h5 class="fw-bold text-primary">
+                        <i class="fas fa-bolt me-2"></i>EV Marketplace
+                    </h5>
+                    <p class="text-muted small">Canada's trusted platform for buying and selling electric vehicles.</p>
+                </div>
+                <div class="col-md-2 mb-3 mb-md-0">
+                    <h6 class="fw-bold">Browse</h6>
+                    <ul class="list-unstyled small">
+                        <li><a href="{% url 'listings:list' %}" class="text-muted text-decoration-none">Listings</a></li>
+                        <li><a href="{% url 'dealers:list' %}" class="text-muted text-decoration-none">Dealers</a></li>
+                        <li><a href="{% url 'guides:list' %}" class="text-muted text-decoration-none">Guides</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-2 mb-3 mb-md-0">
+                    <h6 class="fw-bold">Sellers</h6>
+                    <ul class="list-unstyled small">
+                        <li><a href="{% url 'sell' %}" class="text-muted text-decoration-none">List Your EV</a></li>
+                        {% if user.is_authenticated %}
+                        <li><a href="{% url 'dashboard:index' %}" class="text-muted text-decoration-none">Dashboard</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+                <div class="col-md-4">
+                    <h6 class="fw-bold">Account</h6>
+                    <ul class="list-unstyled small">
+                        {% if user.is_authenticated %}
+                        <li><a href="{% url 'account_logout' %}" class="text-muted text-decoration-none">Logout</a></li>
+                        {% else %}
+                        <li><a href="{% url 'account_login' %}" class="text-muted text-decoration-none">Login</a></li>
+                        <li><a href="{% url 'account_signup' %}" class="text-muted text-decoration-none">Sign Up</a></li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+            <hr class="my-3">
+            <div class="row">
+                <div class="col-12 text-center text-muted small">
+                    <p class="mb-0">&copy; 2025 EV Marketplace. All rights reserved.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/15.7.1/nouislider.min.js" integrity="sha512-UOJe4paV6hYWBnS0c9GnDUvH882ii9iQ2r0/Oa3yflLS4W7C12e0XNduDViTY8fxIZ32WwPAxX65hdcNEjL4dA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="{% static 'js/ev.js' %}"></script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

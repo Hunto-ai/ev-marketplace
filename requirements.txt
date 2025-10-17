@@ -38,4 +38,5 @@ tzdata==2025.2
 urllib3==2.5.0
 vine==5.1.0
 wcwidth==0.2.14
-Markdown==3.6.1
+Markdown==3.9
+gunicorn==21.2.0

@@ -1,31 +1,58 @@
 {% load humanize %}
-<article class="listing-card" style="border: 1px solid var(--muted-border-color); border-radius: 0.75rem; overflow: hidden; display: flex; flex-direction: column;">
-    <a href="{% url 'listings:detail' listing.slug %}" style="display: block; position: relative; padding-top: 62.5%; background: var(--muted-border-color);">
+<div class="card h-100 shadow-sm">
+    <a href="{% url 'listings:detail' listing.slug %}">
         {% if listing.primary_photo %}
             {% with photo=listing.primary_photo %}
                 {% with thumb_url=photo.thumbnail_url %}
                     {% with display_url=photo.display_url|default:photo.image_url %}
-                        <img src="{{ thumb_url|default:display_url }}" {% if display_url and thumb_url and thumb_url != display_url %}srcset="{{ thumb_url }} 320w, {{ display_url }} 640w" sizes="(max-width: 600px) 320px, 640px"{% endif %} alt="{{ photo.alt_text|default:listing.title|default:'EV listing photo' }}" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;" loading="lazy" />
+                        <img src="{{ thumb_url|default:display_url }}" class="card-img-top" {% if display_url and thumb_url and thumb_url != display_url %}srcset="{{ thumb_url }} 320w, {{ display_url }} 640w" sizes="(max-width: 600px) 320px, 640px"{% endif %} alt="{{ photo.alt_text|default:listing.title|default:'EV listing photo' }}" loading="lazy" />
                     {% endwith %}
                 {% endwith %}
             {% endwith %}
         {% else %}
-            <span style="position: absolute; inset: 0; display: grid; place-items: center; font-size: 0.9rem; color: var(--muted-color);">Photo coming soon</span>
+            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+                <span class="text-muted">Photo coming soon</span>
+            </div>
         {% endif %}
     </a>
-    <div style="padding: 1rem; display: flex; flex-direction: column; gap: 0.5rem; flex: 1;">
-        <h2 style="margin: 0; font-size: 1.15rem;"><a href="{% url 'listings:detail' listing.slug %}">{{ listing.title|default:listing.model }}</a></h2>
-        <p style="margin: 0; color: var(--muted-color);">
-            {{ listing.city }}, {{ listing.get_province_display }} - {{ listing.year }} {{ listing.make }} {{ listing.model }}
-        </p>
-        {% if listing.dealer %}
-            <p style="margin: 0; font-size: 0.9rem;">Dealer: <a href="{% url 'dealers:detail' listing.dealer.slug %}">{{ listing.dealer.name }}</a></p>
-        {% endif %}
-        <p style="margin: 0; font-weight: 600;">${{ listing.price|floatformat:0|intcomma }}</p>
-        <ul style="list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.85rem; color: var(--muted-color);">
-            {% if listing.mileage_km %}<li>{{ listing.mileage_km|intcomma }} km</li>{% endif %}
-            {% if listing.range_km %}<li>{{ listing.range_km|intcomma }} km est. range</li>{% endif %}
-            {% if listing.drivetrain %}<li>{{ listing.get_drivetrain_display }}</li>{% endif %}
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+            <h5 class="card-title"><a href="{% url 'listings:detail' listing.slug %}">{{ listing.year }} {{ listing.make }} {{ listing.model }}</a></h5>
+            <div class="d-flex">
+                <a href="#" class="me-2 text-muted"><i class="fas fa-heart card-icon"></i></a>
+                <input class="form-check-input" type="checkbox" value="" id="compare-{{ listing.id }}">
+            </div>
+        </div>
+        <p class="card-text text-muted">{{ listing.city }}, {{ listing.get_province_display }}</p>
+        <p class="card-text fs-5 fw-bold">${{ listing.price|floatformat:0|intcomma }}</p>
+        <ul class="list-inline text-muted">
+            {% if listing.mileage_km %}<li class="list-inline-item"><i class="fas fa-tachometer-alt me-1"></i>{{ listing.mileage_km|intcomma }} km</li>{% endif %}
+            {% if listing.range_km %}<li class="list-inline-item"><i class="fas fa-road me-1"></i>{{ listing.range_km|intcomma }} km est. range</li>{% endif %}
+            {% if listing.drivetrain %}<li class="list-inline-item"><i class="fas fa-cogs me-1"></i>{{ listing.get_drivetrain_display }}</li>{% endif %}
         </ul>
+        <div>
+            {% if listing.get_charge_type_display == 'CCS' %}
+                <span class="badge bg-success">CCS</span>
+            {% elif listing.get_charge_type_display == 'NACS' %}
+                <span class="badge bg-primary">NACS</span>
+            {% elif listing.get_charge_type_display == 'CHAdeMO' %}
+                <span class="badge bg-warning text-dark">CHAdeMO</span>
+            {% endif %}
+            {% if listing.is_new_arrival %}
+                <span class="badge bg-info">New Arrival</span>
+            {% endif %}
+            {% if listing.is_price_drop %}
+                <span class="badge bg-danger">Price Drop</span>
+            {% endif %}
+        </div>
     </div>
-</article>
+    <div class="card-footer bg-transparent border-top-0">
+        <div class="d-flex justify-content-between align-items-center">
+            <div class="btn-group">
+                <a href="{% url 'listings:detail' listing.slug %}" class="btn btn-sm btn-outline-secondary">View</a>
+                <a href="#" class="btn btn-sm btn-outline-secondary">Contact</a>
+            </div>
+            <small class="text-muted">{% if listing.dealer %}Dealer{% else %}Private Seller{% endif %}</small>
+        </div>
+    </div>
+</div>

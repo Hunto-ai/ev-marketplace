@@ -1,12 +1,43 @@
-<nav>
-    <ul>
-        <li><strong>Seller</strong></li>
-        <li><a href="{% url 'dashboard:index' %}">Listings</a></li>
-        <li><a href="{% url 'dashboard:notifications' %}">Notifications{% if inquiry_unread_count|default:0 %} <span class="badge">{{ inquiry_unread_count }}</span>{% endif %}</a></li>
-        <li><a href="{% url 'dashboard:create' %}">Create listing</a></li>
-    </ul>
-    <ul>
-        <li><strong>Account</strong></li>
-        <li><a href="{% url 'account_logout' %}">Logout</a></li>
-    </ul>
-</nav>
+{% with current=request.resolver_match.url_name|default:"" %}
+<aside class="ev-sidebar" aria-label="Seller dashboard navigation">
+    <div class="ev-sidebar__section">
+        <p class="ev-sidebar__title">Seller</p>
+        <ul class="ev-sidebar__nav">
+            <li>
+                <a href="{% url 'dashboard:index' %}"
+                   class="ev-sidebar__link {% if current == 'index' or current == 'edit' or current == 'submit' or current == 'archive' or current == 'photo-upload' or current == 'photo-callback' %}active{% endif %}"
+                   {% if current == 'index' or current == 'edit' or current == 'submit' or current == 'archive' or current == 'photo-upload' or current == 'photo-callback' %}aria-current="page"{% endif %}>
+                    <span>Listings</span>
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'dashboard:notifications' %}"
+                   class="ev-sidebar__link {% if current == 'notifications' %}active{% endif %}"
+                   {% if current == 'notifications' %}aria-current="page"{% endif %}>
+                    <span>Notifications</span>
+                    {% if inquiry_unread_count|default:0 %}
+                        <span class="ev-sidebar__badge" aria-label="{{ inquiry_unread_count }} unread">{{ inquiry_unread_count }}</span>
+                    {% endif %}
+                </a>
+            </li>
+            <li>
+                <a href="{% url 'dashboard:create' %}"
+                   class="ev-sidebar__link {% if current == 'create' %}active{% endif %}"
+                   {% if current == 'create' %}aria-current="page"{% endif %}>
+                    <span>Create listing</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="ev-sidebar__section">
+        <p class="ev-sidebar__title">Account</p>
+        <ul class="ev-sidebar__nav">
+            <li>
+                <a class="ev-sidebar__link" href="{% url 'account_logout' %}">
+                    <span>Logout</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</aside>
+{% endwith %}

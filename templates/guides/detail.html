@@ -4,22 +4,36 @@
 {% block title %}{{ guide.title }} - EV Marketplace{% endblock %}
 
 {% block content %}
-<nav aria-label="Breadcrumb" style="margin-bottom: 1rem;">
-    <a href="{% url 'home' %}">Home</a> › <a href="{% url 'guides:list' %}">Guides</a> › {{ guide.title }}
-</nav>
+<div class="container-fluid">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'guides:list' %}">Guides</a></li>
+            <li class="breadcrumb-item active" aria-current="page">{{ guide.title }}</li>
+        </ol>
+    </nav>
 
-<article style="display: grid; gap: 1rem;">
-    <header style="display: flex; justify-content: space-between; align-items: baseline; gap: 1rem; flex-wrap: wrap;">
-        <div>
-            <h1 style="margin: 0;">{{ guide.title }}</h1>
+    <div class="row justify-content-center">
+        <div class="col-lg-10 col-xl-8">
+            <article class="card">
+                <div class="card-body p-4 p-md-5">
+                    <header class="mb-5 pb-4 border-bottom">
+                        <h1 class="display-5 fw-bold mb-3">{{ guide.title }}</h1>
+                        <p class="text-muted mb-0">
+                            <i class="fas fa-clock me-2"></i>Last updated {{ updated_at|naturaltime }}
+                        </p>
+                    </header>
+                    <div class="ev-prose">
+                        {{ guide_html|safe }}
+                    </div>
+                    <div class="mt-5 pt-4 border-top">
+                        <a href="{% url 'guides:list' %}" class="btn btn-outline-primary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to All Guides
+                        </a>
+                    </div>
+                </div>
+            </article>
         </div>
-        <div>
-            <small class="muted">Updated {{ updated_at|naturaltime }}</small>
-        </div>
-    </header>
-
-    <div class="guide-body" style="display: grid; gap: 1rem;">
-        {{ guide_html|safe }}
     </div>
-</article>
+</div>
 {% endblock %}

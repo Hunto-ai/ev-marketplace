@@ -20,6 +20,10 @@ on:
         options:
           - staging
           - production
+      image_tag:
+        description: "Container image tag to deploy (defaults to <env>-<sha>)"
+        required: false
+        type: string
 
 jobs:
   plan:
@@ -33,6 +37,14 @@ jobs:
       TERRAFORM_WORKSPACE: ${{ github.ref == 'refs/heads/main' && 'prod' || 'staging' }}
     steps:
       - uses: actions/checkout@v4
+      - name: Derive image tag
+        run: |
+          if [ "${GITHUB_REF_NAME}" = "main" ] || [ "${GITHUB_REF_NAME}" = "master" ]; then
+            tag="prod-${GITHUB_SHA::7}"
+          else
+            tag="staging-${GITHUB_SHA::7}"
+          fi
+          echo "TF_VAR_app_runner_image_tag=${tag}" >> $GITHUB_ENV
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
@@ -67,6 +79,16 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+      - name: Derive image tag
+        run: |
+          if [ -n "${{ inputs.image_tag }}" ]; then
+            tag="${{ inputs.image_tag }}"
+          elif [ "${{ inputs.environment }}" = "production" ]; then
+            tag="prod-${GITHUB_SHA::7}"
+          else
+            tag="staging-${GITHUB_SHA::7}"
+          fi
+          echo "TF_VAR_app_runner_image_tag=${tag}" >> $GITHUB_ENV
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:

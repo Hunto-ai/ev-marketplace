@@ -3,35 +3,52 @@
 {% block title %}EV Dealers - EV Marketplace{% endblock %}
 
 {% block content %}
-<header class="flex-between" style="margin-bottom: 1.5rem; gap: 1rem; flex-wrap: wrap;">
-    <div>
-        <h1>EV Dealer Network</h1>
-        <p class="muted">Browse partner dealers across Canada and explore their active EV inventory.</p>
-    </div>
-    <div>
-        <a class="secondary" href="{% url 'sell' %}">Interested in partnering?</a>
-    </div>
-</header>
-
-{% if dealers %}
-<section class="grid" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
-    {% for dealer in dealers %}
-    <article style="border: 1px solid var(--muted-border-color); border-radius: 0.75rem; padding: 1.25rem; display: flex; flex-direction: column; gap: 0.75rem;">
-        <div>
-            <h2 style="margin: 0; font-size: 1.2rem;"><a href="{% url 'dealers:detail' dealer.slug %}">{{ dealer.name }}</a></h2>
-            <p class="muted" style="margin: 0;">{{ dealer.city }}, {{ dealer.province }}</p>
+<div class="container-fluid">
+    <div class="p-4 p-md-5 mb-4 text-white rounded" style="background: linear-gradient(135deg, #059669 0%, #10b981 50%, #34d399 100%);">
+        <div class="col-md-8 col-lg-6 px-0">
+            <h1 class="display-4 fw-bold mb-3">Trusted EV Dealers</h1>
+            <p class="lead mb-0">Browse our network of certified dealers across Canada and explore their active EV inventory.</p>
         </div>
-        {% if dealer.summary %}<p style="margin: 0;">{{ dealer.summary }}</p>{% endif %}
-        {% if dealer.website %}
-            <p style="margin: 0;"><a href="{{ dealer.website }}" target="_blank" rel="noopener">Visit website</a></p>
-        {% endif %}
-        <a class="secondary" href="{% url 'dealers:detail' dealer.slug %}">View dealer profile</a>
-    </article>
-    {% endfor %}
-</section>
-{% else %}
-<article class="muted">
-    <p>No dealer profiles published yet. Check back soon!</p>
-</article>
-{% endif %}
+    </div>
+
+    {% if dealers %}
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for dealer in dealers %}
+        <div class="col">
+            <div class="card h-100">
+                <div class="card-body d-flex flex-column">
+                    <h2 class="h5 card-title">
+                        <a href="{% url 'dealers:detail' dealer.slug %}" class="text-decoration-none">{{ dealer.name }}</a>
+                    </h2>
+                    <p class="text-muted small mb-3">
+                        <i class="fas fa-map-marker-alt me-1"></i>{{ dealer.city }}, {{ dealer.province }}
+                    </p>
+                    {% if dealer.summary %}
+                        <p class="card-text">{{ dealer.summary }}</p>
+                    {% endif %}
+                    <div class="mt-auto pt-3">
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'dealers:detail' dealer.slug %}" class="btn btn-primary btn-sm">View Inventory</a>
+                            {% if dealer.website %}
+                                <a href="{{ dealer.website }}" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm">
+                                    <i class="fas fa-external-link-alt me-1"></i>Visit Website
+                                </a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card">
+        <div class="card-body text-center py-5">
+            <h2 class="h4 mb-3">Dealer Profiles Coming Soon</h2>
+            <p class="text-muted mb-4">We're onboarding partners across the country. Check back shortly for live listings.</p>
+            <a href="{% url 'sell' %}" class="btn btn-primary">Interested in Partnering?</a>
+        </div>
+    </div>
+    {% endif %}
+</div>
 {% endblock %}

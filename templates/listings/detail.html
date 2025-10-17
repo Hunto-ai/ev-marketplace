@@ -11,93 +11,219 @@
 {% endblock %}
 
 {% block content %}
-<nav aria-label="Breadcrumb" style="margin-bottom: 1rem;">
-    <small>
-        <a href="{% url 'listings:list' %}">&larr; Back to listings</a>
-    </small>
-</nav>
+<div class="ev-stack ev-stack--loose">
+    <nav aria-label="Breadcrumb" class="ev-breadcrumb">
+        <a href="{% url 'listings:list' %}">Listings</a>
+        <span class="ev-breadcrumb__separator">/</span>
+        <span aria-current="page">{{ listing.year }} {{ listing.make }} {{ listing.model }}</span>
+    </nav>
 
-<article class="listing-detail" style="display: grid; gap: 2rem;">
-    <header style="display: flex; flex-direction: column; gap: 0.5rem;">
-        <h1 style="margin: 0;">{{ listing.year }} {{ listing.make }} {{ listing.model }}{% if listing.trim %} {{ listing.trim }}{% endif %}</h1>
-        <p style="margin: 0; color: var(--muted-color);">{{ listing.city }}, {{ listing.get_province_display }}</p>
-        <p style="font-size: 1.75rem; font-weight: 600; margin: 0;">${{ listing.price|floatformat:0|intcomma }}</p>
-    </header>
-
-    {% if listing.photos.all %}
-        <section class="gallery" style="display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));">
-            {% for photo in listing.photos.all %}
-                <figure style="margin: 0;">
-                    {% with display_url=photo.display_url|default:photo.image_url %}
-                    <img src="{{ display_url }}" {% with thumb_url=photo.thumbnail_url %}{% if thumb_url and thumb_url != display_url %}srcset="{{ thumb_url }} 320w, {{ display_url }} 1280w" sizes="(max-width: 600px) 320px, 1280px"{% endif %}{% endwith %} alt="{{ photo.alt_text|default:listing.title|default:'Listing photo' }}" style="width: 100%; border-radius: 0.75rem; object-fit: cover;" loading="lazy" />
-                    {% endwith %}
-                    {% if photo.caption %}<figcaption style="margin-top: 0.25rem; font-size: 0.85rem; color: var(--muted-color);">{{ photo.caption }}</figcaption>{% endif %}
-                </figure>
-            {% endfor %}
-        </section>
-    {% endif %}
-
-    <section>
-        <h2>Overview</h2>
-        <p>{{ listing.description|default:"Seller has not provided a description yet."|linebreaks }}</p>
-    </section>
-
-    <section>
-        <h2>Key Details</h2>
-        <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
-            <article>
-                <h3>Vehicle</h3>
-                <ul>
-                    <li><strong>Year:</strong> {{ listing.year }}</li>
-                    <li><strong>Make:</strong> {{ listing.make }}</li>
-                    <li><strong>Model:</strong> {{ listing.model }}</li>
-                    {% if listing.trim %}<li><strong>Trim:</strong> {{ listing.trim }}</li>{% endif %}
-                    {% if listing.mileage_km %}<li><strong>Mileage:</strong> {{ listing.mileage_km|intcomma }} km</li>{% endif %}
-                    {% if listing.range_km %}<li><strong>Range:</strong> {{ listing.range_km|intcomma }} km</li>{% endif %}
-                </ul>
-            </article>
-            <article>
-                <h3>Powertrain</h3>
-                <ul>
-                    {% if listing.drivetrain %}<li><strong>Drivetrain:</strong> {{ listing.get_drivetrain_display }}</li>{% endif %}
-                    {% if listing.dc_fast_charge_type %}<li><strong>DC Fast Charge:</strong> {{ listing.get_dc_fast_charge_type_display }}</li>{% endif %}
-                    {% if listing.has_heat_pump %}<li><strong>Heat pump:</strong> Yes</li>{% endif %}
-                    {% if listing.battery_capacity_kwh %}<li><strong>Battery capacity:</strong> {{ listing.battery_capacity_kwh }} kWh</li>{% endif %}
-                </ul>
-            </article>
-            <article>
-                <h3>Location & Seller</h3>
-                <ul>
-                    <li><strong>Province:</strong> {{ listing.get_province_display }}</li>
-                    <li><strong>City:</strong> {{ listing.city }}</li>
-                    {% if listing.dealer %}
-                        <li><strong>Dealer:</strong> <a href="{% url 'dealers:detail' listing.dealer.slug %}">{{ listing.dealer.name }}</a></li>
-                    {% endif %}
-                </ul>
-            </article>
+    <section class="ev-card">
+        <div class="ev-card__body ev-stack">
+            <div class="ev-stack ev-stack--xsmall">
+                <h1>{{ listing.year }} {{ listing.make }} {{ listing.model }}{% if listing.trim %} {{ listing.trim }}{% endif %}</h1>
+                <p class="ev-muted">{{ listing.city }}, {{ listing.get_province_display }}</p>
+            </div>
+            <p class="ev-price">${{ listing.price|floatformat:0|intcomma }}</p>
         </div>
     </section>
 
-    {% if listing.dealer %}
-    <section style="margin-top: 2rem;">
-        <h2>Meet {{ listing.dealer.name }}</h2>
-        <article style="border: 1px solid var(--muted-border-color); border-radius: 0.75rem; padding: 1.25rem; display: grid; gap: 0.75rem;">
-            {% if listing.dealer.summary %}<p style="margin: 0;">{{ listing.dealer.summary }}</p>{% endif %}
-            <ul style="list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem;">
-                {% if listing.dealer.website %}<li><strong>Website:</strong> <a href="{{ listing.dealer.website }}" target="_blank" rel="noopener">{{ listing.dealer.website }}</a></li>{% endif %}
-                {% if listing.dealer.phone_number %}<li><strong>Phone:</strong> {{ listing.dealer.phone_number }}</li>{% endif %}
-                {% if listing.dealer.email %}<li><strong>Email:</strong> <a href="mailto:{{ listing.dealer.email }}">{{ listing.dealer.email }}</a></li>{% endif %}
-                {% if listing.dealer.address_line1 %}<li><strong>Address:</strong> {{ listing.dealer.address_line1 }}{% if listing.dealer.address_line2 %}, {{ listing.dealer.address_line2 }}{% endif %}, {{ listing.dealer.city }}, {{ listing.dealer.province }} {{ listing.dealer.postal_code }}</li>{% endif %}
-            </ul>
-            <a class="secondary" href="{% url 'dealers:detail' listing.dealer.slug %}">View dealer profile</a>
-        </article>
-    </section>
-    {% endif %}
+    <div class="row g-4">
+        <div class="col-lg-8">
+            {% if listing.photos.all %}
+            <div id="listingCarousel" class="carousel slide mb-4">
+                <div class="carousel-inner">
+                    {% with primary_photo=listing.primary_photo %}
+                        {% if primary_photo %}
+                            <div class="carousel-item active">
+                                <img src="{{ primary_photo.image_url }}" class="d-block w-100 rounded" alt="{{ primary_photo.alt_text|default:listing.title|default:'Listing photo' }}" style="max-height: 500px; object-fit: cover;">
+                            </div>
+                        {% endif %}
+                        {% for photo in listing.photos.all %}
+                            {% if photo != primary_photo %}
+                                <div class="carousel-item">
+                                    <img src="{{ photo.image_url }}" class="d-block w-100 rounded" alt="{{ photo.alt_text|default:listing.title|default:'Listing photo' }}" style="max-height: 500px; object-fit: cover;">
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endwith %}
+                </div>
+                {% if listing.photos.all|length > 1 %}
+                <button class="carousel-control-prev" type="button" data-bs-target="#listingCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#listingCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+                <div class="carousel-indicators">
+                    {% for photo in listing.photos.all %}
+                        <button type="button" data-bs-target="#listingCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active" aria-current="true"{% endif %} aria-label="Slide {{ forloop.counter }}"></button>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
 
-    <section>
-        <h2>Contact Seller</h2>
-        <p class="muted">Have a question about this EV? Submit an inquiry and we will alert the seller.</p>
-        {% include "listings/partials/inquiry_form.html" with form=inquiry_form listing=listing %}
-    </section>
-</article>
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="h4 mb-0">Key Details</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-6 col-md-4">
+                            <div class="text-muted small">Year</div>
+                            <div class="fw-bold">{{ listing.year }}</div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="text-muted small">Make</div>
+                            <div class="fw-bold">{{ listing.make }}</div>
+                        </div>
+                        <div class="col-6 col-md-4">
+                            <div class="text-muted small">Model</div>
+                            <div class="fw-bold">{{ listing.model }}</div>
+                        </div>
+                        {% if listing.trim %}
+                        <div class="col-6 col-md-4">
+                            <div class="text-muted small">Trim</div>
+                            <div class="fw-bold">{{ listing.trim }}</div>
+                        </div>
+                        {% endif %}
+                        {% if listing.mileage_km %}
+                        <div class="col-6 col-md-4">
+                            <div class="text-muted small">Mileage</div>
+                            <div class="fw-bold">{{ listing.mileage_km|intcomma }} km</div>
+                        </div>
+                        {% endif %}
+                        <div class="col-6 col-md-4">
+                            <div class="text-muted small">Location</div>
+                            <div class="fw-bold">{{ listing.city }}, {{ listing.get_province_display }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2 class="h4 mb-0">EV Specifications</h2>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% if listing.range_km %}
+                        <div class="col-6 col-md-4">
+                            <div class="text-muted small">Range</div>
+                            <div class="fw-bold">{{ listing.range_km|intcomma }} km</div>
+                        </div>
+                        {% endif %}
+                        {% if listing.battery_capacity_kwh %}
+                        <div class="col-6 col-md-4">
+                            <div class="text-muted small">Battery Capacity</div>
+                            <div class="fw-bold">{{ listing.battery_capacity_kwh }} kWh</div>
+                        </div>
+                        {% endif %}
+                        {% if listing.drivetrain %}
+                        <div class="col-6 col-md-4">
+                            <div class="text-muted small">Drivetrain</div>
+                            <div class="fw-bold">{{ listing.get_drivetrain_display }}</div>
+                        </div>
+                        {% endif %}
+                        {% if listing.dc_fast_charge_type %}
+                        <div class="col-6 col-md-4">
+                            <div class="text-muted small">DC Fast Charge</div>
+                            <div class="fw-bold">{{ listing.get_dc_fast_charge_type_display }}</div>
+                        </div>
+                        {% endif %}
+                        {% if listing.has_heat_pump %}
+                        <div class="col-6 col-md-4">
+                            <div class="text-muted small">Heat Pump</div>
+                            <div class="fw-bold">Yes</div>
+                        </div>
+                        {% endif %}
+                        {% if listing.battery_warranty_years or listing.battery_warranty_km %}
+                        <div class="col-6 col-md-4">
+                            <div class="text-muted small">Battery Warranty</div>
+                            <div class="fw-bold">
+                                {% if listing.battery_warranty_years %}{{ listing.battery_warranty_years }} years{% endif %}
+                                {% if listing.battery_warranty_years and listing.battery_warranty_km %} / {% endif %}
+                                {% if listing.battery_warranty_km %}{{ listing.battery_warranty_km|intcomma }} km{% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <section class="ev-card">
+                <div class="ev-card__body ev-stack">
+                    <h2>Description</h2>
+                    <div class="ev-prose">
+                        {{ listing.description|default:"Seller has not provided a description yet."|linebreaks }}
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="position-sticky" style="top: 1rem;">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h2 class="card-title h5">Contact Seller</h2>
+                        <p class="card-text text-muted small">Have a question about this EV? Submit an inquiry and we will alert the seller.</p>
+                        {% include "listings/partials/inquiry_form.html" with form=inquiry_form listing=listing %}
+                    </div>
+                </div>
+
+                {% if listing.dealer %}
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="h6 mb-0">Dealer Information</h3>
+                    </div>
+                    <div class="card-body">
+                        <h4 class="h5">{{ listing.dealer.name }}</h4>
+                        {% if listing.dealer.summary %}
+                            <p class="card-text small text-muted">{{ listing.dealer.summary }}</p>
+                        {% endif %}
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        {% if listing.dealer.website %}
+                            <li class="list-group-item py-2">
+                                <a href="{{ listing.dealer.website }}" target="_blank" rel="noopener" class="text-decoration-none">
+                                    <i class="fas fa-globe me-2"></i><span class="small">Visit Website</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if listing.dealer.phone_number %}
+                            <li class="list-group-item py-2">
+                                <a href="tel:{{ listing.dealer.phone_number }}" class="text-decoration-none">
+                                    <i class="fas fa-phone me-2"></i><span class="small">{{ listing.dealer.phone_number }}</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if listing.dealer.email %}
+                            <li class="list-group-item py-2">
+                                <a href="mailto:{{ listing.dealer.email }}" class="text-decoration-none">
+                                    <i class="fas fa-envelope me-2"></i><span class="small">{{ listing.dealer.email }}</span>
+                                </a>
+                            </li>
+                        {% endif %}
+                        {% if listing.dealer.address_line1 %}
+                            <li class="list-group-item py-2">
+                                <i class="fas fa-map-marker-alt me-2"></i>
+                                <span class="small">
+                                    {{ listing.dealer.address_line1 }}{% if listing.dealer.address_line2 %}, {{ listing.dealer.address_line2 }}{% endif %},
+                                    {{ listing.dealer.city }}, {{ listing.dealer.province }} {{ listing.dealer.postal_code }}
+                                </span>
+                            </li>
+                        {% endif %}
+                    </ul>
+                    <div class="card-body">
+                        <a class="btn btn-sm btn-outline-secondary w-100" href="{% url 'dealers:detail' listing.dealer.slug %}">View Dealer Profile</a>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

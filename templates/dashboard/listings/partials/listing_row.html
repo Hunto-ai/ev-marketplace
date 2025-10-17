@@ -1,14 +1,38 @@
+{% load humanize %}
 <tr id="listing-{{ listing.pk }}">
     <td>
-        <strong>{{ listing.title }}</strong><br />
-        <small>{{ listing.city }}, {{ listing.get_province_display }}</small>
+        <div class="ev-stack ev-stack--xsmall">
+            <strong>{{ listing.title }}</strong>
+            <span class="ev-muted">{{ listing.city }}, {{ listing.get_province_display }}</span>
+        </div>
     </td>
     <td>{% include "dashboard/listings/partials/status_badge.html" with listing=listing %}</td>
-    <td>${{ listing.price|floatformat:0 }}</td>
-    <td>{{ listing.updated_at|date:"Y-m-d H:i" }}</td>
-    <td class="actions">
-        <a href="{% url 'dashboard:edit' listing.pk %}">Edit</a>
-        <button hx-post="{% url 'dashboard:submit' listing.pk %}" hx-target="#listing-{{ listing.pk }}" hx-swap="outerHTML" hx-confirm="Submit for moderation?" class="secondary" {% if listing.status != 'draft' and listing.status != 'rejected' %}disabled{% endif %}>Submit</button>
-        <button hx-post="{% url 'dashboard:archive' listing.pk %}" hx-target="#listing-{{ listing.pk }}" hx-swap="outerHTML" hx-confirm="Archive listing?" class="secondary" {% if listing.status == 'archived' %}disabled{% endif %}>Archive</button>
+    <td>${{ listing.price|floatformat:0|intcomma }}</td>
+    <td>
+        <div class="ev-stack ev-stack--xsmall">
+            <span>{{ listing.updated_at|date:"Y-m-d H:i" }}</span>
+            <small class="ev-muted">{{ listing.updated_at|naturaltime }}</small>
+        </div>
+    </td>
+    <td class="ev-table__actions">
+        <a class="ev-btn ev-btn--ghost" href="{% url 'dashboard:edit' listing.pk %}">Edit</a>
+        <button type="button"
+                class="ev-btn ev-btn--secondary"
+                hx-post="{% url 'dashboard:submit' listing.pk %}"
+                hx-target="#listing-{{ listing.pk }}"
+                hx-swap="outerHTML"
+                hx-confirm="Submit for moderation?"
+                {% if listing.status != 'draft' and listing.status != 'rejected' %}disabled aria-disabled="true"{% endif %}>
+            Submit
+        </button>
+        <button type="button"
+                class="ev-btn ev-btn--secondary"
+                hx-post="{% url 'dashboard:archive' listing.pk %}"
+                hx-target="#listing-{{ listing.pk }}"
+                hx-swap="outerHTML"
+                hx-confirm="Archive listing?"
+                {% if listing.status == 'archived' %}disabled aria-disabled="true"{% endif %}>
+            Archive
+        </button>
     </td>
 </tr>

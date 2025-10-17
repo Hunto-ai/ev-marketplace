@@ -11,7 +11,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.cache import cache
 from django.core.mail import send_mail
-from django.db.models import Q
+from django.db.models import Max, Min, Q
 from django.http import Http404, HttpRequest, HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -207,12 +207,14 @@ class ListingListView(ListView):
             .order_by("-year")
             .distinct()
         )
+        prices = qs.aggregate(min=Min("price"), max=Max("price"))
         return {
             "makes": list(makes),
             "provinces": Province.choices,
             "drivetrains": Drivetrain.choices,
             "charge_types": ChargePort.choices,
             "years": list(years),
+            "prices": prices,
         }
 
 

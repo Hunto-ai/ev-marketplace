@@ -1,0 +1,9 @@
+/* Removed problematic sidebar styling - now using position-sticky on individual cards */
+
+.card-icon {
+    font-size: 1.5rem;
+}
+
+.fa-heart:hover {
+    color: red;
+}
